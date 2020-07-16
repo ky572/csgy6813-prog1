@@ -30,23 +30,14 @@ class BackupFile:
   def commit(self,data):
     self.file.close()
     if is_valid_data(data):
-      removefile(self.name)
-      commit_file = openfile(self.name,True)
-      commit_file.writeat(data,0)
+      commit_file = set_file_data(self.name,data)
       commit_file.close()
 
 
 class BufferFile:
   def __init__(self,filename,data):
     self.name = filename+".b"
-
-    try:
-      removefile(self.name)
-    except FileNotFoundError:
-      pass
-
-    self.file = openfile(self.name,True)
-    self.file.writeat(data,0)
+    self.file = set_file_data(self.name,data)
 
   def writeat(self,data,offset):
     self.file.writeat(data,offset)
@@ -79,6 +70,16 @@ def ABopenfile(filename, create):
 
 def is_valid_data(data):
   return data.startswith("S") and data.endswith("E")
+
+def set_file_data(filename,data):
+  try:
+    removefile(filename)
+  except FileNotFoundError:
+    pass
+
+  file = openfile(filename,True)
+  file.writeat(data,0)
+  return file
 
 
 
