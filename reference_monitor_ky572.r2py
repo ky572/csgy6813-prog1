@@ -45,10 +45,7 @@ class BufferFile:
   def flush(self):
     data = self.file.readat(None,0)
     self.file.close()
-    if is_valid_data(data):
-      return data
-    else:
-      return ""
+    return data
 
 class ABFile():
   def __init__(self,filename,create):
