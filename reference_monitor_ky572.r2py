@@ -25,7 +25,7 @@ class BackupFile:
       self.file.writeat("SE",0)
 
   def readat(self,sizelimit,offset):
-    self.file.readat(sizelimit,offset)
+    return self.file.readat(sizelimit,offset)
 
   def commit(self,data):
     self.file.close()
@@ -39,12 +39,14 @@ class BackupFile:
 class BufferFile:
   def __init__(self,filename,data):
     self.name = filename+".b"
+
     try:
       removefile(self.name)
-      self.file = openfile(self.name,True)
-      self.file.writeat(data,0)
     except FileNotFoundError:
       pass
+
+    self.file = openfile(self.name,True)
+    self.file.writeat(data,0)
 
   def writeat(self,data,offset):
     self.file.writeat(data,offset)
@@ -61,35 +63,16 @@ class ABFile():
   def __init__(self,filename,create):
     self.backup = BackupFile(filename,create)
     self.buffer = BufferFile(filename,self.backup.readat(None,0))
-    # globals
-    # mycontext['debug'] = False
-    # # local (per object) reference to the underlying file
-    # self.Afn = filename+'.a'
-    # self.Bfn = filename+'.b'
-    #
-    # # make the files and add 'SE' to the readat file...
-    # if create:
-    #   self.Afile = openfile(self.Afn,create)
-    #   self.Bfile = openfile(self.Bfn,create)
-    #   self.Afile.writeat('SE',0)
-
 
   def writeat(self,data,offset):
     self.buffer.writeat(data,offset)
-    # Write the requested data to the B file using the sandbox's writeat call
-    # self.Bfile.writeat(data,offset)
 
   def readat(self,sizelimit,offset):
-    self.backup.readat(sizelimit,offset)
-    # Read from the A file using the sandbox's readat...
-    # return self.Afile.readat(bytes,offset)
+    return self.backup.readat(sizelimit,offset)
 
   def close(self):
     buffer_data = self.buffer.flush()
     self.backup.commit(buffer_data)
-
-    # self.Afile.close()
-    # self.Bfile.close()
 
 def ABopenfile(filename, create):
   return ABFile(filename,create)
